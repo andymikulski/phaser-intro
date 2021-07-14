@@ -3,13 +3,42 @@ import Phaser from 'phaser';
 // Normalized random distribution
 const rand = () => (Math.random() + Math.random() + Math.random()) / 3
 
+// Our enemy! A goomba that chases Mario.
+class ChasingGoomba extends Phaser.GameObjects.Image {
+  private speed:number;
+
+  constructor(scene: Phaser.Scene, x: number, y: number, private target: Phaser.GameObjects.Image){
+    super(scene, x, y, 'goomba');
+
+    this.displayWidth = 64;
+    this.displayHeight = 64;
+
+    this.speed = 10 + (rand()*25);
+  }
+
+  // Automatically invoked by Phaser when necessary.
+  preUpdate = (timeElapsed: number, deltaTime: number) => {
+    if (this.x < this.target.x) {
+      this.x += this.speed;
+    } else if (this.x > this.target.x) {
+      this.x -= this.speed;
+    }
+
+    if (this.y < this.target.y) {
+      this.y += this.speed;
+    } else if (this.y > this.target.y) {
+      this.y -= this.speed;
+    }
+  }
+}
+
 // A scene for our game!
 class MyScene extends Phaser.Scene {
   marioImage: Phaser.GameObjects.Image;
 
   preload() {
-    // Load an image from imgur, and save it in Phaser as "mario"
     this.load.image('mario', 'https://i.imgur.com/nKgMvuj.png');
+    this.load.image('goomba', 'https://i.imgur.com/qqdvBdS.png');
   }
 
   create() {
@@ -21,6 +50,9 @@ class MyScene extends Phaser.Scene {
     );
     this.marioImage.displayWidth = 32;
     this.marioImage.displayHeight = 32;
+
+    // Depth acts similar to CSS z-index. This sets the mario image above everything else.
+    this.marioImage.setDepth(10);
 
     // Mark this object as interactive.
     // `useHandCursor` ensures that the mouse cursor changes when a user hovers.
@@ -38,6 +70,11 @@ class MyScene extends Phaser.Scene {
     });
 
     this.marioImage.on('pointerdown', this.updateMario);
+
+    // Create the enemy instance
+    const goomba = new ChasingGoomba(this, 50, 50, this.marioImage);
+    // Attach it to the scene. From here, the `preUpdate` will function automatically.
+    this.add.existing(goomba);
   }
 
   updateMario = () => {
@@ -59,8 +96,8 @@ class MyScene extends Phaser.Scene {
       ease: 'Bounce',
       props: {
         // Note that `image`s use displayWidth/Height instead of just `width/height`
-        displayWidth: rand() * 500,
-        displayHeight: rand() * 500,
+        displayWidth: rand() * 250,
+        displayHeight: rand() * 250,
       }
     });
   }

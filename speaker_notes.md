@@ -1,5 +1,5 @@
-Great! We have Mario bouncing around the screen. This isn't much of a game though, we need something to do!
+Let's get a little bit more complicated. In games, we often need objects to have their own behavior - maybe something is floating, maybe an enemy needs to walk around, maybe there's an animation that needs to fire occasionally.
 
-We can use Phaser's built-in input system to attach event handlers to our game objects. Here, we'll simply detect when the cursor is over the sprite, and change its appearance accordingly.
+By creating our own GameObject classes and adding them to our scene, we can take advantage of some of the lifecycle events built into Phaser. For instance, here we add a Goomba which tracks its target, inching closer to Mario on each update.
 
-We'll also attach a "pointerdown" event which will update our Mario size and position. Phaser uses the concept of "pointers" as a catch-all for various devices. Mouse events and touch events are both covered by the 'pointer' nomenclature.
+If you run this locally, you'll see the goomba blink a lot and snap to the Mario's current position. What gives??
