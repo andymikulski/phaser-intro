@@ -1,4 +1,6 @@
-import { Greeter } from './greeter';
+import Phaser from 'phaser';
 
-const g = new Greeter('Juri');
-g.greet();
+new Phaser.Game({
+  width: 500,
+  height: 500,
+});

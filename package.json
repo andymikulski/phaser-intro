@@ -20,6 +20,9 @@
   ],
   "author": "Juri Strumpflohner",
   "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.55.2"
+  },
   "devDependencies": {
     "@types/jasmine": "2.8.7",
     "@types/node": "7.0.0",
