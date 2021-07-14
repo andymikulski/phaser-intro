@@ -18,16 +18,19 @@ class ChasingGoomba extends Phaser.GameObjects.Image {
 
   // Automatically invoked by Phaser when necessary.
   preUpdate = (timeElapsed: number, deltaTime: number) => {
+    // Slow down the deltaTime a bit
+    const adjustedTime = (deltaTime / 100);
+
     if (this.x < this.target.x) {
-      this.x += this.speed;
+      this.x += this.speed * adjustedTime;
     } else if (this.x > this.target.x) {
-      this.x -= this.speed;
+      this.x -= this.speed * adjustedTime;
     }
 
     if (this.y < this.target.y) {
-      this.y += this.speed;
+      this.y += this.speed * adjustedTime;
     } else if (this.y > this.target.y) {
-      this.y -= this.speed;
+      this.y -= this.speed * adjustedTime;
     }
   }
 }

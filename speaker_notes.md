@@ -1,5 +1,7 @@
-Let's get a little bit more complicated. In games, we often need objects to have their own behavior - maybe something is floating, maybe an enemy needs to walk around, maybe there's an animation that needs to fire occasionally.
+Right now, on each `preUpdate`, we adjust the `x/y` properties by `speed`, each frame. If you're running on a 60fps monitor (which you probably are), this means that this function fires about every 16ms. 
 
-By creating our own GameObject classes and adding them to our scene, we can take advantage of some of the lifecycle events built into Phaser. For instance, here we add a Goomba which tracks its target, inching closer to Mario on each update.
+What happens, though, if a user's monitor is faster than 60fps? Let's say a user has a gaming monitor which runs at 144fps. Suddenly this function fires about every _6ms_. Users on faster monitors will see their goombas zip around, since the function is firing faster.
 
-If you run this locally, you'll see the goomba blink a lot and snap to the Mario's current position. What gives??
+The solution is to leverage the `deltaTime` provided in `preUpdate`. This basically says "this is the duration of time that has passed since the last time this function was ran."
+
+If we adjust our speed by `deltaTime`, we're able to ensure that the objects move at the same rate for all users, regardless of frame rate. If a function fires 3ms after the last, we should only move the object `3ms * speed`.
