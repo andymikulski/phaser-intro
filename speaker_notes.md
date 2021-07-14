@@ -1,5 +1,9 @@
-As we can see, there's nothing here. `Game`s require that we put all of our game objects (like sprites) into their own special containers called `Scene`s. Scenes come with a lot of things out of the box: a camera, a loading mechanism, an event dispatcher, a game object factory, etc. There are also some functions we can define for handling the initialization or preloading of a scene.
+We have a scene, let's draw something, finally!
 
-Let's create a scene and add some debug logs to show when these events fire. We'll also tell the Game that this is the scene to run when the game starts up by changing our `Game` configuration.
+We'll add a red rectangle to the screen via the scene's GameObject Factory. This is a fancy way of saying: you can do `someScene.add.[someObject]()` and Phaser will take care of creating and adding the new object to the scene.
 
-Running this in the browser will show you the setup order for a scene is `init -> preload -> create`.
+Run this, and you'll see a red rectangle appear.
+
+But wait!
+
+If the position is (10,25), why isn't there a space between the red rectangle and the canvas border?
