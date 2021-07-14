@@ -5,29 +5,29 @@ const rand = () => (Math.random() + Math.random() + Math.random()) / 3
 
 // A scene for our game!
 class MyScene extends Phaser.Scene {
-  rect: Phaser.GameObjects.Rectangle;
+  marioImage: Phaser.GameObjects.Image;
 
-  create() {
-    // Add a red 100w x 500h rectangle, positioned at (10, 25)
-    this.rect = this.add.rectangle(
-      10, // x
-      25, // y
-      100, // width
-      500, // height
-      0xff0000 // fill color
-    );
-
-    // Move the rect's anchor point to the top left corner
-    this.rect.setOrigin(0, 0);
-
-    // Update the rectangle every second
-    setInterval(this.updateRectangle, 1000);
+  preload() {
+    // Load an image from imgur, and save it in Phaser as "mario"
+    this.load.image('mario', 'https://i.imgur.com/nKgMvuj.png');
   }
 
-  updateRectangle = () => {
+  create() {
+    // Add an instance of Mario positioned at (10, 25)
+    this.marioImage = this.add.image(
+      10, // x
+      25, // y
+      'mario',
+    );
+
+    // Update every second
+    setInterval(this.updateMario, 1000);
+  }
+
+  updateMario = () => {
     // Tween to random position
     this.tweens.add({
-      targets: this.rect,
+      targets: this.marioImage,
       duration: 500,
       ease: 'Cubic',
       props: {
@@ -38,12 +38,13 @@ class MyScene extends Phaser.Scene {
 
     // Tween to random width/height
     this.tweens.add({
-      targets: this.rect,
+      targets: this.marioImage,
       duration: 1000,
       ease: 'Bounce',
       props: {
-        width: rand() * 500,
-        height: rand() * 500,
+        // Note that `image`s use displayWidth/Height instead of just `width/height`
+        displayWidth: rand() * 500,
+        displayHeight: rand() * 500,
       }
     });
   }
