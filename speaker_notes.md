@@ -1,7 +1,12 @@
-Great. We have our Mario, we have a goomba, we're in business.
+Let's get really wild. This next step demonstrates a very simplified model of how game server updates can/will be propagated into Phaser.
 
-BUT! Right now, our canvas is only 500px by 500px. This means that anytime we position our player outside (500,500), the object will be cut off. Luckily, Phaser comes equipped with cameras!
+We've added a `FakeServerUpdates` mechanism for demonstration purposes. **Do not worry about its implementation.** The FSU module mimics a game server where users join, maybe move around a little, and leave. Updates are sent periodically (every half second in this demo), and each user has a unique ID.
 
-Cameras are exactly as they sound; we're able to adjust camera position, zoom, rotation, etc. You're also even able to render cameras to textures, meaning you could do something like position a camera somewhere, and render that camera view to a piece of UI.
+In our 'client' (the Phaser stuff), upon receiving a server update, our code checks a few things:
+- Have any users left? If so, they should be removed from the game.
+- Have any users joined? If so, they should be created and added to the game.
+- Have any users moved? If so, we should update their position in game.
 
-This allows us to do some really cool stuff! In this example, we're using the camera's `startFollow` function to lock onto our Mario image as it moves around. We also use `setBounds` to ensure that users can't see any black void around our background image.
+Through this, we are able to track each user's Phaser object, and update it accordingly. In this demo, you can see user positions update over time, and it'd be trivial to extend this to other properties: rotation, tint, etc. Going further, consider a player's `busy status`, `current avatar`, or even just `name` - all could be handled just as seamlessly.
+
+This, in a _very_ tight nut shell, is what you can expect the new Gather->Phaser flow to look like!
