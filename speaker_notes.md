@@ -1,9 +1,3 @@
-We have a scene, let's draw something, finally!
+Objects in Phaser have their anchor point set to (0.5, 0.5) - or the _center_ of the object.
 
-We'll add a red rectangle to the screen via the scene's GameObject Factory. This is a fancy way of saying: you can do `someScene.add.[someObject]()` and Phaser will take care of creating and adding the new object to the scene.
-
-Run this, and you'll see a red rectangle appear.
-
-But wait!
-
-If the position is (10,25), why isn't there a space between the red rectangle and the canvas border?
+In canvas-land, we're more used to working with anchor points set to the top left of the object. We can change the anchor/pivot point pretty simply, through `setOrigin`.
