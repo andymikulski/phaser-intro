@@ -25,10 +25,27 @@ class MyScene extends Phaser.Scene {
   }
 
   updateRectangle = () => {
-    // Random position
-    this.rect.setPosition(rand() * 500, rand() * 500);
-    // Random size
-    this.rect.setSize(rand() * 250, rand() * 250);
+    // Tween to random position
+    this.tweens.add({
+      targets: this.rect,
+      duration: 500,
+      ease: 'Cubic',
+      props: {
+        x: rand() * 500,
+        y: rand() * 500,
+      }
+    });
+
+    // Tween to random width/height
+    this.tweens.add({
+      targets: this.rect,
+      duration: 1000,
+      ease: 'Bounce',
+      props: {
+        width: rand() * 500,
+        height: rand() * 500,
+      }
+    });
   }
 }
 
