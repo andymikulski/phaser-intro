@@ -15,13 +15,29 @@ class MyScene extends Phaser.Scene {
   create() {
     // Add an instance of Mario positioned at (10, 25)
     this.marioImage = this.add.image(
-      10, // x
-      25, // y
+      50, // x
+      50, // y
       'mario',
     );
+    this.marioImage.displayWidth = 32;
+    this.marioImage.displayHeight = 32;
 
-    // Update every second
-    setInterval(this.updateMario, 1000);
+    // Mark this object as interactive.
+    // `useHandCursor` ensures that the mouse cursor changes when a user hovers.
+    this.marioImage.setInteractive({ useHandCursor: true });
+
+    // Bind over/out event handlers.
+    // Phaser uses "pointer" to cover both mouse and touch inputs.
+    this.marioImage.on('pointerover', () => {
+      // Tint the image red
+      this.marioImage.setTint(0xff0000);
+    });
+    this.marioImage.on('pointerout', () => {
+      // Tint the image white (which basically just removes the tint)
+      this.marioImage.setTint(0xffffff);
+    });
+
+    this.marioImage.on('pointerdown', this.updateMario);
   }
 
   updateMario = () => {
@@ -39,7 +55,7 @@ class MyScene extends Phaser.Scene {
     // Tween to random width/height
     this.tweens.add({
       targets: this.marioImage,
-      duration: 1000,
+      duration: 500,
       ease: 'Bounce',
       props: {
         // Note that `image`s use displayWidth/Height instead of just `width/height`
