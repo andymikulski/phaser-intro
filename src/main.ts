@@ -42,42 +42,55 @@ class MyScene extends Phaser.Scene {
   preload() {
     this.load.image('mario', 'https://i.imgur.com/nKgMvuj.png');
     this.load.image('goomba', 'https://i.imgur.com/qqdvBdS.png');
+    this.load.image('background', 'https://i.imgur.com/dzpw15B.jpg');
   }
 
   create() {
     // Add an instance of Mario positioned at (10, 25)
     this.marioImage = this.add.image(
-      50, // x
-      50, // y
+      1440 * rand(), // x
+      960 * rand(), // y
       'mario',
     );
     this.marioImage.displayWidth = 32;
     this.marioImage.displayHeight = 32;
-
-    // Depth acts similar to CSS z-index. This sets the mario image above everything else.
     this.marioImage.setDepth(10);
 
     // Mark this object as interactive.
-    // `useHandCursor` ensures that the mouse cursor changes when a user hovers.
     this.marioImage.setInteractive({ useHandCursor: true });
 
     // Bind over/out event handlers.
-    // Phaser uses "pointer" to cover both mouse and touch inputs.
     this.marioImage.on('pointerover', () => {
-      // Tint the image red
       this.marioImage.setTint(0xff0000);
     });
     this.marioImage.on('pointerout', () => {
-      // Tint the image white (which basically just removes the tint)
       this.marioImage.setTint(0xffffff);
     });
 
-    this.marioImage.on('pointerdown', this.updateMario);
+    this.marioImage.on('pointerdown', () => {
+      this.updateMario();
+    });
+    
 
     // Create the enemy instance
     const goomba = new ChasingGoomba(this, 50, 50, this.marioImage);
-    // Attach it to the scene. From here, the `preUpdate` will function automatically.
     this.add.existing(goomba);
+
+    // Create a background, and set it behind everything.
+    const bg = this.add.image(0, 0, 'background');
+    bg.setOrigin(0, 0);
+    bg.setDepth(-1);
+
+
+    // Tell the camera to start following Mario, with a lerp factor of 0.1
+    // Setting the lerp to 1 will lock onto the target, below 1 will ease towards the target.
+    this.cameras.main.startFollow(this.marioImage, false, 0.1, 0.1);
+    // Setting bounds prevents the camera from showing 'the void'
+    // Basically, the camera will not allow itself to show anything outside of the rect (0,0,1440,960).
+    this.cameras.main.setBounds(0, 0, 1440, 960);
+
+    // Camera zooms can be adjusted through `setZoom` or through tweens.
+    // this.cameras.main.setZoom(2); // Try me!
   }
 
   updateMario = () => {
@@ -87,8 +100,8 @@ class MyScene extends Phaser.Scene {
       duration: 500,
       ease: 'Cubic',
       props: {
-        x: rand() * 500,
-        y: rand() * 500,
+        x: rand() * 1440,
+        y: rand() * 960,
       }
     });
 

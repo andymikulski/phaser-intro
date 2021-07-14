@@ -1,7 +1,7 @@
-Right now, on each `preUpdate`, we adjust the `x/y` properties by `speed`, each frame. If you're running on a 60fps monitor (which you probably are), this means that this function fires about every 16ms. 
+Great. We have our Mario, we have a goomba, we're in business.
 
-What happens, though, if a user's monitor is faster than 60fps? Let's say a user has a gaming monitor which runs at 144fps. Suddenly this function fires about every _6ms_. Users on faster monitors will see their goombas zip around, since the function is firing faster.
+BUT! Right now, our canvas is only 500px by 500px. This means that anytime we position our player outside (500,500), the object will be cut off. Luckily, Phaser comes equipped with cameras!
 
-The solution is to leverage the `deltaTime` provided in `preUpdate`. This basically says "this is the duration of time that has passed since the last time this function was ran."
+Cameras are exactly as they sound; we're able to adjust camera position, zoom, rotation, etc. You're also even able to render cameras to textures, meaning you could do something like position a camera somewhere, and render that camera view to a piece of UI.
 
-If we adjust our speed by `deltaTime`, we're able to ensure that the objects move at the same rate for all users, regardless of frame rate. If a function fires 3ms after the last, we should only move the object `3ms * speed`.
+This allows us to do some really cool stuff! In this example, we're using the camera's `startFollow` function to lock onto our Mario image as it moves around. We also use `setBounds` to ensure that users can't see any black void around our background image.
