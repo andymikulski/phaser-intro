@@ -131,29 +131,14 @@ class PlayerEntity extends Phaser.GameObjects.Container {
 }
 //#endregion
 
-
-
-class MyScene extends Phaser.Scene {
-  preload() {
-    this.load.image('mario', 'https://i.imgur.com/nKgMvuj.png');
-    this.load.image('background', 'https://i.imgur.com/dzpw15B.jpg');
-  }
-
-  create() {
-    // Create a background, and set it behind everything.
-    const bg = this.add.image(0, 0, 'background');
-    bg.setOrigin(0, 0);
-    bg.setDepth(-1);
-
-    // Begin listening to 'server' updates
-    FakeServerUpdates.subscribe(this.onServerUpdate);
-  }
+//#region PlayerManager class definition
+class PlayerManager {
+  constructor(private scene: Phaser.Scene) { }
 
   // This is used to track the existence of entities within Phaser
-  currentlyTrackedEnts: { [id: string]: PlayerEntity } = {};
+  private currentlyTrackedEnts: { [id: string]: PlayerEntity } = {};
 
-  // The server will send information such as a player's position, name, current avatar, etc.
-  onServerUpdate = (ents: { [id: string]: Position }) => {
+  public onPlayersUpdate = (ents: { [id: string]: Position }) => {
     const current = this.currentlyTrackedEnts;
     // Check the existence of the objects we're tracking in Phaser to determine if someone has left.
     for (const id in current) {
@@ -176,8 +161,8 @@ class MyScene extends Phaser.Scene {
 
       if (!player) {
         // Player does NOT exist, create it!
-        player = new PlayerEntity(this, ent.x, ent.y);
-        this.add.existing(player);
+        player = new PlayerEntity(this.scene, ent.x, ent.y);
+        this.scene.add.existing(player);
         player.setPlayerColor(0xFFFFFF * Math.random());
         player.setPlayerName(id);
 
@@ -191,6 +176,28 @@ class MyScene extends Phaser.Scene {
         player.moveToPosition(ent);
       }
     }
+  }
+}
+//#endregion
+
+
+class MyScene extends Phaser.Scene {
+  preload() {
+    this.load.image('mario', 'https://i.imgur.com/nKgMvuj.png');
+    this.load.image('background', 'https://i.imgur.com/dzpw15B.jpg');
+  }
+
+  create() {
+    // Create a background, and set it behind everything.
+    const bg = this.add.image(0, 0, 'background');
+    bg.setOrigin(0, 0);
+    bg.setDepth(-1);
+
+    // Create a class to manage our players
+    const playerMan = new PlayerManager(this);
+
+    // Begin listening to 'server' updates
+    FakeServerUpdates.subscribe(playerMan.onPlayersUpdate);
   }
 }
 
