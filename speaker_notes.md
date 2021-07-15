@@ -1,12 +1,7 @@
-Let's get really wild. This next step demonstrates a very simplified model of how game server updates can/will be propagated into Phaser.
+Alright! We've got a server, we've got a client, and our client automatically moves stuff when the server sends updates.
 
-We've added a `FakeServerUpdates` mechanism for demonstration purposes. **Do not worry about its implementation.** The FSU module mimics a game server where users join, maybe move around a little, and leave. Updates are sent periodically (every half second in this demo), and each user has a unique ID.
+We've got a lot of code manipulating Phaser objects inside our network update functions. Let's abstract out a `PlayerEntity` class for Phaser, which will act as a container for our Mario image, text for the player's name, and any other visual elements that we may need attached (like a busy indicator).
 
-In our 'client' (the Phaser stuff), upon receiving a server update, our code checks a few things:
-- Have any users left? If so, they should be removed from the game.
-- Have any users joined? If so, they should be created and added to the game.
-- Have any users moved? If so, we should update their position in game.
+Using our custom class, we're able to expose functions which simplify working with complex objects. In this example we can see `setPlayerColor`, `setPlayerName`, and `moveToPosition`.
 
-Through this, we are able to track each user's Phaser object, and update it accordingly. In this demo, you can see user positions update over time, and it'd be trivial to extend this to other properties: rotation, tint, etc. Going further, consider a player's `busy status`, `current avatar`, or even just `name` - all could be handled just as seamlessly.
-
-This, in a _very_ tight nut shell, is what you can expect the new Gather->Phaser flow to look like!
+By abstracting these functions to the PlayerEntity class itself, we now simply need a reference to the object to update its properties, nested visual elements, etc.

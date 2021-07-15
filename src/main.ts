@@ -9,7 +9,7 @@ const rand = () => (Math.random() + Math.random() + Math.random()) / 3;
 const FakeServerUpdates = (function () {
   const listeners: Function[] = [];
   const ents: { [id: string]: Position } = {};
-  const getRandomId = () => Math.random().toString(32).slice(2);
+  const getRandomId = () => Math.random().toString(32).slice(2).slice(-4);
   const destroyRandomEnt = () => {
     const id = Object.keys(ents)
       .sort(() => Math.random() > 0.5 ? 1 : -1)
@@ -57,9 +57,83 @@ const FakeServerUpdates = (function () {
 })();
 //#endregion
 
-class MyScene extends Phaser.Scene {
-  marioImage: Phaser.GameObjects.Image;
+//#region PlayerEntity class definition
+class PlayerEntity extends Phaser.GameObjects.Container {
+  private characterImage: Phaser.GameObjects.Image;
+  private nameText: Phaser.GameObjects.Text;
 
+  constructor(scene: Phaser.Scene, x: number, y: number) {
+    super(scene, x, y);
+
+    this.characterImage = new Phaser.GameObjects.Image(scene, 0, 0, 'mario');
+    this.characterImage.displayWidth = 32;
+    this.characterImage.displayHeight = 32;
+
+    this.nameText = new Phaser.GameObjects.Text(scene, 0, 0, 'Mario', { color: '#fff', stroke: '#000', strokeThickness: 4 });
+
+    this.add(this.characterImage);
+    this.add(this.nameText);
+
+    this.width = 64;
+    this.height = 64;
+  }
+
+  public setPlayerColor(hexColor: number) {
+    this.characterImage.setTint(hexColor);
+  }
+
+  public setPlayerName(name: string) {
+    this.nameText.setText(name);
+  }
+
+  public moveToPosition(pos: Position) {
+    this.scene.tweens.add({
+      targets: this,
+      props: {
+        x: pos.x,
+        y: pos.y,
+      },
+      duration: 1000 / 2,
+      ease: 'Cubic',
+    });
+  }
+
+  public async fadeIn() {
+    return new Promise<void>((res) => {
+      this.setAlpha(0);
+      this.scene.tweens.add({
+        targets: this,
+        props: {
+          alpha: 1,
+        },
+        duration: 300,
+        onComplete: () => {
+          res();
+        }
+      });
+    });
+  }
+
+  public async fadeOut() {
+    return new Promise<void>((res) => {
+      this.scene.tweens.add({
+        targets: this,
+        props: {
+          alpha: 0,
+        },
+        duration: 300,
+        onComplete: () => {
+          res();
+        }
+      });
+    });
+  }
+}
+//#endregion
+
+
+
+class MyScene extends Phaser.Scene {
   preload() {
     this.load.image('mario', 'https://i.imgur.com/nKgMvuj.png');
     this.load.image('background', 'https://i.imgur.com/dzpw15B.jpg');
@@ -76,7 +150,7 @@ class MyScene extends Phaser.Scene {
   }
 
   // This is used to track the existence of entities within Phaser
-  currentlyTrackedEnts: { [id: string]: Phaser.GameObjects.Image } = {};
+  currentlyTrackedEnts: { [id: string]: PlayerEntity } = {};
 
   // The server will send information such as a player's position, name, current avatar, etc.
   onServerUpdate = (ents: { [id: string]: Position }) => {
@@ -85,18 +159,11 @@ class MyScene extends Phaser.Scene {
     for (const id in current) {
       if (!ents[id]) {
         // Fade out the object, ...
-        this.tweens.add({
-          targets: current[id],
-          props: {
-            alpha: 0,
-          },
-          duration: 300,
-          onComplete: () => {
-            // ..and then destroy it!
-            current[id].destroy(true);
-            // ..and stop tracking it in memory!
-            delete current[id];
-          }
+        current[id].fadeOut().then(() => {
+          // ..and then destroy it!
+          current[id].destroy(true);
+          // ..and stop tracking it in memory!
+          delete current[id];
         });
       }
     }
@@ -105,37 +172,23 @@ class MyScene extends Phaser.Scene {
     // If not, we will create a new Image object. If so, we will update the existing image with new data.
     for (const id in ents) {
       const ent = ents[id];
-      if (!current[id]) {
+      let player = current[id];
+
+      if (!player) {
         // Player does NOT exist, create it!
-        const player = this.add.image(ent.x, ent.y, 'mario');
-        player.displayWidth = 64;
-        player.displayHeight = 64;
-        // Apply a random color tint to distinguish different Mario images!
-        player.setTint(0xFFFFFF * Math.random());
+        player = new PlayerEntity(this, ent.x, ent.y);
+        this.add.existing(player);
+        player.setPlayerColor(0xFFFFFF * Math.random());
+        player.setPlayerName(id);
 
         // Save this object we just created so it can be updated later.
         current[id] = player;
 
         // Fade in the player!
-        player.setAlpha(0);
-        this.tweens.add({
-          targets: player,
-          props: {
-            alpha: 1,
-          },
-          duration: 300
-        });
+        player.fadeIn();
       } else {
         // Player already exists, update the position from the server update
-        this.tweens.add({
-          targets: current[id],
-          props: {
-            x: ent.x,
-            y: ent.y,
-          },
-          duration: 1000 / 2,
-          ease: 'Cubic',
-        });
+        player.moveToPosition(ent);
       }
     }
   }
